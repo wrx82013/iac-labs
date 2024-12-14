@@ -10,12 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build
+  setup-environment:
+    name: Setup Environment
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./example-app
+    concurrency:
+      group: setup-env
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -31,12 +33,6 @@ jobs:
           version: 1.6.1
           virtualenvs-in-project: true
 
-      - name: Remove Old Virtual Environment
-        run: rm -rf .venv
-
-      - name: Use Python 3.11 in Poetry
-        run: poetry env use python3.11
-
       - name: Cache Poetry Dependencies
         id: poetry-cache
         uses: actions/cache@v3
@@ -49,8 +45,10 @@ jobs:
 
   lint:
     name: Lint
+    needs: setup-environment
     runs-on: ubuntu-latest
-    needs: build
+    concurrency:
+      group: lint-group
     defaults:
       run:
         working-directory: ./example-app
@@ -64,16 +62,15 @@ jobs:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Use Python 3.11 in Poetry
-        run: poetry env use python3.11
-
-      - name: Run Lint
+      - name: Run Linter
         run: poetry run task lint
 
   formatter:
     name: Formatter
+    needs: setup-environment
     runs-on: ubuntu-latest
-    needs: build
+    concurrency:
+      group: format-group
     defaults:
       run:
         working-directory: ./example-app
@@ -86,17 +83,16 @@ jobs:
         with:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Use Python 3.11 in Poetry
-        run: poetry env use python3.11
 
       - name: Run Formatter
         run: poetry run task formatter
 
   security:
-    name: Security
+    name: Security Checks
+    needs: setup-environment
     runs-on: ubuntu-latest
-    needs: build
+    concurrency:
+      group: security-group
     defaults:
       run:
         working-directory: ./example-app
@@ -109,20 +105,22 @@ jobs:
         with:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Use Python 3.11 in Poetry
-        run: poetry env use python3.11
 
       - name: Run Security Checks
         run: poetry run task security
 
   unittests:
     name: Unit Tests
-    runs-on: ubuntu-latest
     needs: [lint, formatter, security]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     defaults:
       run:
         working-directory: ./example-app
+    concurrency:
+      group: unittests-group
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -133,8 +131,12 @@ jobs:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Use Python 3.11 in Poetry
-        run: poetry env use python3.11
+      - name: Install Poetry
+        if: matrix.os == 'windows-latest'
+        uses: snok/install-poetry@v1.3.4
+        with:
+          virtualenvs-in-project: true
 
       - name: Run Unit Tests
+        shell: bash
         run: poetry run task test
