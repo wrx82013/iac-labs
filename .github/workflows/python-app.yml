@@ -76,10 +76,10 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: "3.11"
-      - name: Install Poetry Action
+      - name: Install Poetry
       
         uses: snok/install-poetry@v1.3.4
-      - name: Cache build venv
+      - name: Cache build
       
         id: cached-poetry-dependencies
         uses: actions/cache@v3
@@ -101,10 +101,10 @@ jobs:
         with:
           python-version: "3.11"
           
-      - name: Install Poetry Action
+      - name: Install Poetry
         uses: snok/install-poetry@v1.3.4
         
-      - name: Cache build venv
+      - name: Cache build
         id: cached-poetry-dependencies
         uses: actions/cache@v3
         with:
@@ -119,15 +119,16 @@ jobs:
     needs: [linter, formatter, security]
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
           python-version: "3.11"
           
-      - name: Install Poetry Action
+      - name: Install Poetry
         uses: snok/install-poetry@v1.3.4
         
-      - name: Cache build venv
+      - name: Cache build
         id: cached-poetry-dependencies
         uses: actions/cache@v3
         with:
