@@ -20,10 +20,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.13
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: "3.13"
+          python-version: "3.11"
 
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.4
@@ -53,18 +53,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.4
-
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Run Linter
+      - name: Run Lint
         run: |
-          poetry run flake8 .
+          poetry run task lint
 
   formatter:
     name: Formatter
@@ -77,9 +74,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.4
-
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -88,7 +82,7 @@ jobs:
 
       - name: Run Formatter
         run: |
-          poetry run black --check .
+          poetry run task formatter
 
   security:
     name: Security
@@ -101,9 +95,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.4
-
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -112,7 +103,7 @@ jobs:
 
       - name: Run Security Checks
         run: |
-          poetry run bandit -r .
+          poetry run task security
 
   unittests:
     name: Unit Tests
@@ -125,9 +116,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.4
-
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -136,4 +124,4 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          poetry run pytest
+          poetry run task test
