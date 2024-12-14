@@ -31,6 +31,9 @@ jobs:
           version: 1.6.1
           virtualenvs-in-project: true
 
+      - name: Verify Poetry Installation
+        run: poetry --version
+
       - name: Cache Poetry Dependencies
         id: poetry-cache
         uses: actions/cache@v3
@@ -53,6 +56,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.3.4
+        with:
+          version: 1.6.1
+          virtualenvs-in-project: true
+
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -60,8 +69,7 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
       - name: Run Lint
-        run: |
-          poetry run task lint
+        run: poetry run task lint
 
   formatter:
     name: Formatter
@@ -74,6 +82,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.3.4
+        with:
+          version: 1.6.1
+          virtualenvs-in-project: true
+
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -81,8 +95,7 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
       - name: Run Formatter
-        run: |
-          poetry run task formatter
+        run: poetry run task formatter
 
   security:
     name: Security
@@ -95,6 +108,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.3.4
+        with:
+          version: 1.6.1
+          virtualenvs-in-project: true
+
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -102,8 +121,7 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
       - name: Run Security Checks
-        run: |
-          poetry run task security
+        run: poetry run task security
 
   unittests:
     name: Unit Tests
@@ -116,6 +134,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.3.4
+        with:
+          version: 1.6.1
+          virtualenvs-in-project: true
+
       - name: Restore Cached Dependencies
         uses: actions/cache@v3
         with:
@@ -123,5 +147,4 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
       - name: Run Unit Tests
-        run: |
-          poetry run task test
+        run: poetry run task test
